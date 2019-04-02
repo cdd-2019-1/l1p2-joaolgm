@@ -1,5 +1,5 @@
 ---
-title: "REPLACE ME"
+title: "Congressistas no Twitter"
 output:
     html_document:
     df_print: paged
@@ -14,4 +14,33 @@ theme_set(theme_bw())
 
 ```{r read}
 atividade = read_projectdata()
+
+validos = atividade %>%
+  filter(!is.na(seguidores))
+
+glimpse(validos)
+
+media_engaj_senador = validos %>%
+  filter(casa == "senado") %>%
+  group_by(UF) %>%
+  summarise(media = mean(engaj_total))
+
+glimpse(media_engaj_senador)
+
+engaj_deputados = validos %>%
+  filter(casa == "câmara") %>%
+  group_by(UF) %>%
+  select(engaj_total)
+
+glimpse(engaj_deputados)
+
+ggplot() +
+  geom_jitter(data = engaj_deputados,
+              mapping = aes(x = reorder(UF, engaj_total), y = engaj_total),
+              width = .3,
+              alpha = .4) +
+  geom_point(data = media_engaj_senador,
+             mapping = aes(x = UF, y = media),
+             color = "red",
+             size = 2)
 ```
