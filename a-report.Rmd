@@ -1,0 +1,103 @@
+---
+title: "Congressistas no Twitter"
+output:
+    html_document:
+    df_print: paged
+theme: sandstone
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggbeeswarm)
+source(here::here("code/lib.R"))
+theme_set(theme_bw())
+```
+
+
+## 5- O quão comum é os senadores de um estado terem maior engajamento do que os deputados?
+```{r read}
+atividade = read_projectdata()
+
+validos = atividade %>%
+  filter(!is.na(seguidores))
+
+#glimpse(validos)
+
+media_engaj_senador = validos %>%
+  filter(casa == "senado") %>%
+  group_by(UF) %>%
+  summarise(media = mean(engaj_total))
+
+#glimpse(media_engaj_senador)
+
+engaj_deputados = validos %>%
+  filter(casa == "câmara") %>%
+  group_by(UF) %>%
+  select(engaj_total)
+
+#glimpse(engaj_deputados)
+
+ggplot() +
+  geom_jitter(data = engaj_deputados,
+              mapping = aes(x = reorder(UF, engaj_total), y = engaj_total),
+              width = .3,
+              alpha = .4) +
+  geom_point(data = media_engaj_senador,
+             mapping = aes(x = UF, y = media),
+             color = "red",
+             size = 2) +
+  labs(x = "Estados",
+       y = "Engajamento Total")
+
+```
+### São poucos os estados onde a média de engajamento total dos senadores é maior do que a dos deputados
+
+## 5.1- 
+```{r read}
+
+
+```
+### a
+#-------------------------#
+
+## 6- Quais parlamentares obtiveram seu maior engajamento com retweets? 
+```{r read}
+engaj_rt = validos %>%
+  filter(engaj_max == engaj_max_retweet)
+
+#glimpse(engaj_rt)
+
+
+engaj_rt %>%
+  ggplot(aes(x = casa, y = engaj_max_retweet, color = casa)) +
+  geom_quasirandom() +
+  labs(title = "Engajamento com retweets",
+       x = "Casa", 
+       y = "Engajamento máximo com retweet", 
+       color = "Casas")
+```
+### Dos 608 parlamentares 163 deles obtiveram seu maior engajamento a partir de retweet
+
+## 6.1- Entre os que obtiveram maior engajamento, quantos esse engajamento com retweet reflete como maior engajamento já obtido por ele?
+```{r read}
+top_engaj = engaj_rt %>%
+  filter(engaj_max_retweet > 50000)
+
+#glimpse(top_engaj)
+
+ggplot() + 
+  geom_point(data = top_engaj,
+             mapping = aes(x = reorder(nome_eleitoral, engaj_max), y = engaj_max),
+             color = "red",
+             size = 3) +
+  geom_point(data = top_engaj,
+             mapping = aes(x = nome_eleitoral, y = engaj_max_proprio),
+             color = "blue",
+             size = 3) + 
+  coord_flip() + 
+  labs(y = "Engajamento máximo",
+       x = "Parlamentar")
+
+
+```
+### Dentre os mais famosos do retweet, todos eles não tem metade do engajamento com seus tweets proprios
