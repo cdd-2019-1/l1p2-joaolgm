@@ -12,9 +12,9 @@ library(ggbeeswarm)
 source(here::here("code/lib.R"))
 theme_set(theme_bw())
 ```
+# Com os dados da atividade dos parlamentares no twitter
 
-
-## 5- O quão comum é os senadores de um estado terem maior engajamento do que os deputados?
+## (5-) O quão comum é os senadores de um estado terem maior engajamento do que os deputados?
 ```{r read}
 atividade = read_projectdata()
 
@@ -50,23 +50,34 @@ ggplot() +
        y = "Engajamento Total")
 
 ```
-### São poucos os estados onde a média de engajamento total dos senadores é maior do que a dos deputados
+### Dos 27 estados em apenas três - Mato Grosso do Sul, Pernambuco e Amapá - existe uma certa diferença e que a média do engajamento dos senadores é maior, em geral, do que a dos deputados.
 
-## 5.1- 
+## (5.1-) Nesses três casos, os senadores são relamente mais ativos que os deputados ou só são mais populares e alguma vez tiveram seu momento ao sol?
 ```{r read}
+senadores_top = validos %>%
+  filter(UF == "MS" | UF == "PE" | UF == "AP") %>%
+  group_by(casa, UF) %>%
+  select(n_proprio, engaj_total_proprio)
 
+#glimpse(senadores_top)
+
+senadores_top %>%
+  ggplot(aes(x = UF, y = n_proprio, color = casa)) +
+  geom_quasirandom() +
+  labs(x = "Estados",
+       y = "Tweets próprios",
+       color = "Casa")
 
 ```
-### a
+### No Amapá e no Mato Grosso do Sul ambos parlamentares têm atividades parecidas com alguns picos, porém no Pernambuco temos um senador muito mais ativos que todos os outros parlamentares e os outros dois menos ativos do que todos os outros parlamentares destes estados.
 #-------------------------#
 
-## 6- Quais parlamentares obtiveram seu maior engajamento com retweets? 
+## (6-) Quantos parlamentares obtiveram seu maior engajamento com retweets? 
 ```{r read}
 engaj_rt = validos %>%
   filter(engaj_max == engaj_max_retweet)
 
 #glimpse(engaj_rt)
-
 
 engaj_rt %>%
   ggplot(aes(x = casa, y = engaj_max_retweet, color = casa)) +
@@ -76,9 +87,9 @@ engaj_rt %>%
        y = "Engajamento máximo com retweet", 
        color = "Casas")
 ```
-### Dos 608 parlamentares 163 deles obtiveram seu maior engajamento a partir de retweet
+### Dos 608 parlamentares que obtemos nos dados, tiveram 163 que obtiveram seu maior engajamento a partir de retweet, sendo grande maioria destes com engajamento menor que 25000 reações e a minoria deles acima, incluindo até, pontos isolados com mais de 75000 reações em seus retweets.
 
-## 6.1- Entre os que obtiveram maior engajamento, quantos esse engajamento com retweet reflete como maior engajamento já obtido por ele?
+## (6.1-) Entre os que obtiveram maior engajamento, em quantos deles esse engajamento com retweet reflete como maior engajamento já obtido por ele?
 ```{r read}
 top_engaj = engaj_rt %>%
   filter(engaj_max_retweet > 50000)
@@ -100,4 +111,4 @@ ggplot() +
 
 
 ```
-### Dentre os mais famosos do retweet, todos eles não tem metade do engajamento com seus tweets proprios
+### Com os pontos vermelhos simbolizando os retweets e os azuis os tweets próprios, entre os nove mais famosos do retweet - que alcançam mais de 50000 reações cada um em seu retweet mais repercutido - nenhum deles conseguiu atingir tanto engajamento com seus tweets próprios e apenas uma parlamentar atingiu metade desse engajamento com tweet próprio.
