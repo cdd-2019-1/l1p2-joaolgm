@@ -12,12 +12,15 @@ library(ggbeeswarm)
 source(here::here("code/lib.R"))
 theme_set(theme_bw())
 ```
-# Com os dados da atividade dos parlamentares no twitter
 
-## (5-) O quão comum é os senadores de um estado terem maior engajamento do que os deputados?
+## Com os dados da atividade dos parlamentares no twitter tenho interesse em saber se essa presença e atividade deles na rede é notada, a partir da quantidade de curtidas e retweets (engajamento) a cada publicação, e também se existem parlamentares que sustentam essa fama através de retweets. 
+
 ```{r read}
 atividade = read_projectdata()
+```
 
+## (5-) O quão comum é os senadores de um estado terem maior engajamento do que os deputados?
+```{r}
 validos = atividade %>%
   filter(!is.na(seguidores))
 
@@ -47,13 +50,15 @@ ggplot() +
              color = "red",
              size = 2) +
   labs(x = "Estados",
-       y = "Engajamento Total")
+       y = "Engajamento Total",
+       title = "Deputados x Senadores")
 
 ```
+
 ### Dos 27 estados em apenas três - Mato Grosso do Sul, Pernambuco e Amapá - existe uma certa diferença e que a média do engajamento dos senadores é maior, em geral, do que a dos deputados.
 
 ## (5.1-) Nesses três casos, os senadores são relamente mais ativos que os deputados ou só são mais populares e alguma vez tiveram seu momento ao sol?
-```{r read}
+```{r}
 senadores_top = validos %>%
   filter(UF == "MS" | UF == "PE" | UF == "AP") %>%
   group_by(casa, UF) %>%
@@ -66,14 +71,23 @@ senadores_top %>%
   geom_quasirandom() +
   labs(x = "Estados",
        y = "Tweets próprios",
-       color = "Casa")
+       color = "Casa",
+       title = "Tweets dos parlamentares")
+
+# Descobrindo quem é mais hitado
+senado_top_pe = validos %>% 
+  filter(casa == "senado" & UF == "PE") %>%
+  select(nome_eleitoral, n_proprio)
+
+#glimpse(senado_top_pe)
 
 ```
-### No Amapá e no Mato Grosso do Sul ambos parlamentares têm atividades parecidas com alguns picos, porém no Pernambuco temos um senador muito mais ativos que todos os outros parlamentares e os outros dois menos ativos do que todos os outros parlamentares destes estados.
-#-------------------------#
+
+### No Amapá e no Mato Grosso do Sul ambos parlamentares têm atividades parecidas com alguns picos, porém no Pernambuco temos um senador, Humberto Costa, que é muito mais ativo que todos os outros parlamentares e os outros dois menos ativos do que todos os outros parlamentares destes estados.
+
 
 ## (6-) Quantos parlamentares obtiveram seu maior engajamento com retweets? 
-```{r read}
+```{r}
 engaj_rt = validos %>%
   filter(engaj_max == engaj_max_retweet)
 
@@ -87,10 +101,11 @@ engaj_rt %>%
        y = "Engajamento máximo com retweet", 
        color = "Casas")
 ```
+
 ### Dos 608 parlamentares que obtemos nos dados, tiveram 163 que obtiveram seu maior engajamento a partir de retweet, sendo grande maioria destes com engajamento menor que 25000 reações e a minoria deles acima, incluindo até, pontos isolados com mais de 75000 reações em seus retweets.
 
 ## (6.1-) Entre os que obtiveram maior engajamento, em quantos deles esse engajamento com retweet reflete como maior engajamento já obtido por ele?
-```{r read}
+```{r}
 top_engaj = engaj_rt %>%
   filter(engaj_max_retweet > 50000)
 
@@ -107,8 +122,9 @@ ggplot() +
              size = 3) + 
   coord_flip() + 
   labs(y = "Engajamento máximo",
-       x = "Parlamentar")
-
+       x = "Parlamentar",
+       title = "Tweet próprio x Retweet")
 
 ```
+
 ### Com os pontos vermelhos simbolizando os retweets e os azuis os tweets próprios, entre os nove mais famosos do retweet - que alcançam mais de 50000 reações cada um em seu retweet mais repercutido - nenhum deles conseguiu atingir tanto engajamento com seus tweets próprios e apenas uma parlamentar atingiu metade desse engajamento com tweet próprio.
